@@ -6,6 +6,8 @@
 #  Guid: 4e5b5fd4-1245-41a2-a858-de45f56d9bc9
 #  
 #  ruby a858.rb -s 0 -f addition
+#
+#  If your interested in this bit of code i'll be on the #A858 on irc.freenode.net - dome22xl
 
 require 'pp'
 require 'getoptlong'
@@ -326,6 +328,28 @@ puts "Data Size: #{str[sel].size}"
 puts "Data Size (Bytes): #{str[sel].bytesize}"
 
 x = A858.new
+
+=begin
+# Untested
+def argdefined?(arg, setvalue=false)
+  if instance_variable_defined("@#{arg}") and setvalue == false
+    x.instance_eval do
+      instance_variable_set("@#{arg}"), true)
+    end
+  else
+    x.instance_eval do
+      instance_variable_set("@#{arg}"), false)
+    end  
+  end
+  
+  if instance_variable_defined("@#{arg}") and setvalue == true
+    x.instance_eval do
+      instance_variable_set("@#{arg}"), instance_variable_get("@#{arg}")
+    end  
+  end
+end
+=end
+
 if defined?(@reverse)
   x.reverse = true
 else
