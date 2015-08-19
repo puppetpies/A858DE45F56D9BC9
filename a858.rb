@@ -12,6 +12,7 @@ require 'getoptlong'
 require 'keycounter'
 require 'digest'
 require 'openssl'
+require 'base64'
 
 ARGV[0] = "--help" if ARGV[0] == nil
 
@@ -24,7 +25,8 @@ opts = GetoptLong.new(
   [ '--reverse', '-r', GetoptLong::NO_ARGUMENT],
   [ '--removeletters', '-l', GetoptLong::NO_ARGUMENT],
   [ '--brutedict', '-b', GetoptLong::NO_ARGUMENT],
-  [ '--reversemd5', '-m', GetoptLong::NO_ARGUMENT]
+  [ '--reversemd5', '-m', GetoptLong::NO_ARGUMENT],
+  [ '--base64', '-1', GetoptLong::REQUIRED_ARGUMENT]
 )
 
 opts.each do |opt, arg|
@@ -66,7 +68,9 @@ opts.each do |opt, arg|
 
 -b, --brutedict
     Load dictionary file
-    
+
+-1, --base64
+    encode / decode
  ]
       puts helper
       exit
@@ -86,10 +90,12 @@ opts.each do |opt, arg|
       @brutedict = arg.to_s
     when '--reversemd5'
       @reversemd5 = arg.to_s
+    when '--base64'
+      @base64 = arg.to_s
   end
 end
 
-def MyCipher
+class MyCipher
 
 =begin
 
@@ -153,7 +159,7 @@ end
 
 class A858
 
-  attr_writer :reverse, :reversemd5, :removeletters, :brutedict, :dictionary
+  attr_writer :reverse, :reversemd5, :removeletters, :brutedict, :dictionary, :base64
   
   def initialize
     @twochar_col = Array.new
@@ -165,6 +171,7 @@ class A858
     @removeletters = false
     @brutedict = false
     @dictionary = "wordsEn.txt"
+    @base64 = false
     @debug = 0
   end
   
@@ -232,21 +239,26 @@ class A858
     mdtuples = str.split(" ")
     twochar = String.new
     c = 0
-    k = Keycounter.new
-    l = Keycounter.new
-    h = Keycounter.new
+    k, l, h = Keycounter.new, Keycounter.new, Keycounter.new
     print "Twochar:"
     mdtuples.each {|n| # 32 Char strings of which last is 16
       n.reverse! if @reverse == true
       n.gsub!(/[a-f]/, "") if @removeletters == true
-      Thread.new { load_dict(n) if @brutedict == true }
+      if @base64 != false
+        if @base64 == "encode"
+          n = Base64.strict_encode64(n) 
+        else
+          n = Base64.strict_decode64(n)
+        end
+      end
+      if @brutedict == true; Thread.new { load_dict(n) }; end
       n.split("").each {|m|
         twochar << m
         if twochar.size == 2
           print " #{twochar}"
           @twochar_col << twochar
           @dehex_col << convert_hex("#{twochar}")
-          k.keycount("A858_#{@dehex_col[@dehex_col.size - 1]}")
+          if @base64 == false; k.keycount("A858_#{@dehex_col[@dehex_col.size - 1]}"); end # Base64 breaks my counter oh well
           @chr_col << convert_chr(convert_hex("#{twochar}"))
           @baseshift << baseshift(convert_hex("#{twochar}"), shift, func, type)
           twochar = ""
@@ -255,7 +267,7 @@ class A858
       if c == wordsnum
         break;
       end
-      l.keycount("A858_#{n}")
+      if @base64 == false; l.keycount("A858_#{n}"); end
       c += 1
     }
     puts "\n\nMDTuples: #{mdtuples.size}"
@@ -333,5 +345,10 @@ if defined?(@reversemd5)
   x.reversemd5 = true
 else
   x.reversemd5 = false
+end
+if defined?(@base64)
+  x.base64 = @base64
+else
+  x.base64 = @base64
 end
 x.decode(chooser, @wordsnum, @shift, @func)
