@@ -11,6 +11,7 @@ require 'pp'
 require 'getoptlong'
 require 'keycounter'
 require 'digest'
+require 'openssl'
 
 ARGV[0] = "--help" if ARGV[0] == nil
 
@@ -86,6 +87,68 @@ opts.each do |opt, arg|
     when '--reversemd5'
       @reversemd5 = arg.to_s
   end
+end
+
+def MyCipher
+
+=begin
+
+OpenSSL::Cipher::AES::AES128.ciphers.each {|n| puts n }
+
+Supported 128bit ciphers
+
+aes-128-cbc
+aes-128-cfb
+aes-128-cfb1
+aes-128-cfb8
+aes-128-ctr
+aes-128-ecb
+aes-128-gcm
+aes-128-ofb
+aes-128-xts
+
+camellia-128-cbc
+camellia-128-cfb
+camellia-128-cfb1
+camellia-128-cfb8
+camellia-128-ecb
+camellia-128-ofb
+
+=end
+
+  def initialize(method, cipher="aes-128-cbc")
+    @cipher = OpenSSL::Cipher::Cipher.new("#{cipher}")
+    case method
+    when "encrypt"
+      @cipher.encrypt
+    when "decrypt"
+      @cipher.decrypt
+    end
+  end
+
+  # Need to save your keys somewhere safe for later
+  def generate_iv(passphrase)
+    key = Digest::SHA1.hexdigest("#{passphrase}")
+    iv = @cipher.random_iv
+    return [key, iv]
+  end
+  
+  # Specify your Key / IV so you can Encrypt / Decrypt
+  def set_iv(key, iv)
+    @cipher.key = key
+    @cipher.iv = iv
+  end
+  
+  def encypt(msg)
+    encrypted = @cipher.update("#{msg}")
+    encrypted << @cipher.final
+  end
+  
+  def decrypt(msg)
+    decrypted = cipher.update("#{msg}")
+    decrypted << cipher.final
+  end
+
 end
 
 class A858
