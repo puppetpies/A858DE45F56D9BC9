@@ -28,7 +28,11 @@ opts = GetoptLong.new(
   [ '--removeletters', '-l', GetoptLong::NO_ARGUMENT],
   [ '--brutedict', '-b', GetoptLong::NO_ARGUMENT],
   [ '--reversemd5', '-m', GetoptLong::NO_ARGUMENT],
-  [ '--base64', '-1', GetoptLong::REQUIRED_ARGUMENT]
+  [ '--base64', '-1', GetoptLong::REQUIRED_ARGUMENT],
+  [ '--cipher', '-c', GetoptLong::REQUIRED_ARGUMENT],
+  [ '--key', '-k', GetoptLong::REQUIRED_ARGUMENT],
+  [ '--iv', '-i', GetoptLong::REQUIRED_ARGUMENT],
+  [ '--ciphermethod', '-p', GetoptLong::REQUIRED_ARGUMENT]
 )
 
 opts.each do |opt, arg|
@@ -73,6 +77,35 @@ opts.each do |opt, arg|
 
 -1, --base64
     encode / decode
+
+-c, --cipher
+
+    aes-128-cbc - [default]
+    aes-128-cfb
+    aes-128-cfb1
+    aes-128-cfb8
+    aes-128-ctr
+    aes-128-ecb
+    aes-128-gcm
+    aes-128-ofb
+    aes-128-xts
+
+    camellia-128-cbc
+    camellia-128-cfb
+    camellia-128-cfb1
+    camellia-128-cfb8
+    camellia-128-ecb
+    camellia-128-ofb
+
+-k, --key
+    OpenSSL Key
+    
+-i, --iv
+    OpenSSL IV
+
+-p, --ciphermethod
+    OpenSSL
+    encrypt / dectypt
  ]
       puts helper
       exit
@@ -94,6 +127,14 @@ opts.each do |opt, arg|
       @reversemd5 = arg.to_s
     when '--base64'
       @base64 = arg.to_s
+    when '--cipher'
+      @cipher = arg.to_s
+    when '--key'
+      @key = arg.to_s
+    when '--iv'
+      @iv = arg.to_s
+    when '--ciphermethod'
+      @ciphermethod = arg.to_s
   end
 end
 
@@ -124,14 +165,8 @@ camellia-128-ofb
 
 =end
 
-  def initialize(method, cipher="aes-128-cbc")
+  def initialize(cipher="aes-128-cbc")
     @cipher = OpenSSL::Cipher::Cipher.new("#{cipher}")
-    case method
-    when "encrypt"
-      @cipher.encrypt
-    when "decrypt"
-      @cipher.decrypt
-    end
   end
 
   # Need to save your keys somewhere safe for later
@@ -143,16 +178,18 @@ camellia-128-ofb
   
   # Specify your Key / IV so you can Encrypt / Decrypt
   def set_iv(key, iv)
-    @cipher.key = key
+    @cipher.key = Digest::SHA1.hexdigest("#{key}")
     @cipher.iv = iv
   end
   
   def encypt(msg)
+    @cipher.encrypt
     encrypted = @cipher.update("#{msg}")
     encrypted << @cipher.final
   end
   
   def decrypt(msg)
+    @cipher.decrypt
     decrypted = cipher.update("#{msg}")
     decrypted << cipher.final
   end
@@ -161,7 +198,7 @@ end
 
 class A858
 
-  attr_writer :reverse, :reversemd5, :removeletters, :brutedict, :dictionary, :base64
+  attr_writer :reverse, :reversemd5, :removeletters, :brutedict, :dictionary, :base64, :cipher, :key, :iv, :ciphermethod
   
   def initialize
     @twochar_col = Array.new
@@ -174,6 +211,8 @@ class A858
     @brutedict = false
     @dictionary = "wordsEn.txt"
     @base64 = false
+    @cipher, @key, @iv = false, false, false
+    @ciphermethod = false
     @debug = 0
   end
   
@@ -242,6 +281,13 @@ class A858
     twochar = String.new
     c = 0
     k, l, h = Keycounter.new, Keycounter.new, Keycounter.new
+    if @cipher != true
+      if @cipher != "aes-128-cbc"
+        cipheroo = MyCipher.new("#{@cipher}")
+      else
+        cipheroo = MyCipher.new
+      end
+    end
     print "Twochar:"
     mdtuples.each {|n| # 32 Char strings of which last is 16
       n.reverse! if @reverse == true
@@ -251,6 +297,14 @@ class A858
           n = Base64.strict_encode64(n) 
         else
           n = Base64.strict_decode64(n)
+        end
+      end
+      if @ciphermethod != false
+        case @ciphermethod
+        when "encrypt"
+          n = cipheroo.encrypt("#{n}")
+        when "decrypt"
+          n = cipheroo.decrypt("#{n}")
         end
       end
       if @brutedict == true; Thread.new { load_dict(n) }; end
@@ -288,12 +342,14 @@ class A858
     pp repeat.sort_by { |h| h[1] }
     puts "Keycounter Code info Size:"
     pp keys.sort_by { |h| h[1] }.size
-    #puts "Keycounter Code Left Column Unique: "
-    #pp keys.sort.uniq { |h| h[0] }
-    #puts "Keycounter Code Left Column Unique Size: "
-    #pp keys.sort.uniq { |h| h[0] }.size
-    #strings = l.keycount_compile
-    #pp strings.sort_by { |h| h[1] }
+=begin
+    puts "Keycounter Code Left Column Unique: "
+    pp keys.sort.uniq { |h| h[0] }
+    puts "Keycounter Code Left Column Unique Size: "
+    pp keys.sort.uniq { |h| h[0] }.size
+    strings = l.keycount_compile
+    pp strings.sort_by { |h| h[1] }
+=end
   end
 
 end
@@ -332,7 +388,7 @@ x = A858.new
 =begin
 # Untested
 def argdefined?(arg, setvalue=false)
-  if instance_variable_defined("@#{arg}") and setvalue == false
+  if instance_variable_defined?("@#{arg}") and setvalue == false
     x.instance_eval do
       instance_variable_set("@#{arg}"), true)
     end
@@ -342,7 +398,7 @@ def argdefined?(arg, setvalue=false)
     end  
   end
   
-  if instance_variable_defined("@#{arg}") and setvalue == true
+  if instance_variable_defined?("@#{arg}") and setvalue == true
     x.instance_eval do
       instance_variable_set("@#{arg}"), instance_variable_get("@#{arg}")
     end  
@@ -372,7 +428,17 @@ else
 end
 if defined?(@base64)
   x.base64 = @base64
-else
-  x.base64 = @base64
+end
+if defined?(@cipher)
+  x.cipher = @cipher
+  if defined?(@key)
+    x.key = @key
+  end
+  if defined?(@iv)
+    x.iv = @iv
+  end
+  if defined?(@ciphermethod)
+    x.ciphermethod = @ciphermethod
+  end
 end
 x.decode(chooser, @wordsnum, @shift, @func)
