@@ -227,6 +227,7 @@ class A858
     @cipher, @key, @iv = false, false, false
     @ciphermethod = false
     @debug = 0
+    @keycounter = false # If using Base64 or OpenSSL options set it to false.
   end
   
   def md5sum(dictline)
@@ -324,7 +325,7 @@ class A858
           print " #{twochar}"
           @twochar_col << twochar
           @dehex_col << convert_hex("#{twochar}")
-          if @base64 == false; k.keycount("A858_#{@dehex_col[@dehex_col.size - 1]}"); end # Base64 breaks my counter oh well
+          if @keycounter == true; k.keycount("A858_#{@dehex_col[@dehex_col.size - 1]}"); end # Base64 breaks my counter oh well
           @chr_col << convert_chr(convert_hex("#{twochar}"))
           @baseshift << baseshift(convert_hex("#{twochar}"), shift, func, type)
           twochar = ""
@@ -333,7 +334,7 @@ class A858
       if c == wordsnum
         break;
       end
-      if @base64 == false; l.keycount("A858_#{n}"); end
+      if @keycounter == true; l.keycount("A858_#{n}"); end
       c += 1
     }
     puts "\n\nMDTuples: #{mdtuples.size}"
@@ -341,17 +342,19 @@ class A858
     puts "Dehex Char: #{@dehex_col}"
     puts "Chr: #{@chr_col}"
     puts "Baseshift Char: #{@baseshift}"
-    keys =  k.keycount_compile
-    puts "Keycounter Codes info: "
-    pp keys.sort_by { |h| h[1] }
-    keys.sort_by { |i|
-      h.keycount("A858_REP_#{i[1]}")
-    }
-    puts "Keycounter Codes - Repeat totals occurances: "
-    repeat = h.keycount_compile
-    pp repeat.sort_by { |h| h[1] }
-    puts "Keycounter Code info Size:"
-    pp keys.sort_by { |h| h[1] }.size
+    if @keycounter == true
+      keys =  k.keycount_compile
+      puts "Keycounter Codes info: "
+      pp keys.sort_by { |h| h[1] }
+      keys.sort_by { |i|
+        h.keycount("A858_REP_#{i[1]}")
+      }
+      puts "Keycounter Codes - Repeat totals occurances: "
+      repeat = h.keycount_compile
+      pp repeat.sort_by { |h| h[1] }
+      puts "Keycounter Code info Size:"
+      pp keys.sort_by { |h| h[1] }.size
+    end
 =begin
     puts "Keycounter Code Left Column Unique: "
     pp keys.sort.uniq { |h| h[0] }
