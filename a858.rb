@@ -281,7 +281,7 @@ class A858
     twochar = String.new
     c = 0
     k, l, h = Keycounter.new, Keycounter.new, Keycounter.new
-    if @cipher != true
+    if @cipher != false
       if @cipher != "aes-128-cbc"
         cipheroo = MyCipher.new("#{@cipher}")
       else
