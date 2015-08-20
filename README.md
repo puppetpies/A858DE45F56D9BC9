@@ -170,7 +170,7 @@ $ A858
 
     OpenSSL
 
-    encrypt / dectypt
+    encrypt / decrypt
  
 
 Regards,

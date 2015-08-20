@@ -105,7 +105,7 @@ opts.each do |opt, arg|
 
 -p, --ciphermethod
     OpenSSL
-    encrypt / dectypt
+    encrypt / decrypt
  ]
       puts helper
       exit
