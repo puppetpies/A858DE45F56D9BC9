@@ -168,10 +168,15 @@ camellia-128-ofb
 =begin
 
 c = MyCipher.new
+c.set_mode("encrypt")
 keyiv = c.generate_iv("2srvml")
 c.set_iv(keyiv[0], keyiv[1])
-msg = c.encrypt("this is just a test")
-c.decrypt(msg)
+msg = c.set_data("this is just a test")
+
+d = MyCipher.new
+d.set_mode("decrypt")
+d.set_iv(keyiv[0], keyiv[1])
+msg2 = d.set_data(msg)
 
 =end
 
@@ -186,24 +191,22 @@ c.decrypt(msg)
     return [key, iv]
   end
   
+  def set_mode(methodname)
+    method_sym = methodname.to_sym
+    @cipher.send(method_sym)
+  end
+  
   # Specify your Key / IV so you can Encrypt / Decrypt
   def set_iv(key, iv)
     @cipher.key = key
     @cipher.iv = iv
   end
   
-  def encrypt(msg)
-    @cipher.encrypt
-    encrypted = @cipher.update(msg)
-    encrypted << @cipher.final
+  def set_data(payload)
+    data = @cipher.update(payload)
+    data << @cipher.final
   end
   
-  def decrypt(msg)
-    @cipher.decrypt
-    decrypted = @cipher.update(msg)
-    decrypted << @cipher.final
-  end
-
 end
 
 class A858
@@ -310,12 +313,9 @@ class A858
         end
       end
       if @ciphermethod != false
-        case @ciphermethod
-        when "encrypt"
-          n = cipheroo.encrypt("#{n}")
-        when "decrypt"
-          n = cipheroo.decrypt("#{n}")
-        end
+        cipheroo.set_mode("#{@ciphermethod}")
+        cipheroo.set_iv(@key, @iv)
+        n = cipheroo.set_data("#{n}")
       end
       if @brutedict == true; Thread.new { load_dict(n) }; end
       n.split("").each {|m|
