@@ -61,7 +61,7 @@ opts.each do |opt, arg|
     chr, ord, hex
 
 -w, --words
-    Words to process
+    Words / 32 char sections to process
 
 -r, --reverse
     Reverse each 32 chr string
