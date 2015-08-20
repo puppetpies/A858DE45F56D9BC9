@@ -99,6 +99,77 @@ I have random posts as strings in the code so it runs a different post everytime
 
 ruby a858.rb -s 0 -f addition
 
+-------------------------------------------
+
+$ A858 
+================================= 
+
+-h, --help:
+   show help
+
+-s, --shift
+    Value to shift base code
+
+-f, --func
+    Mathematical function to use
+    
+    addition
+    subtract
+    multiply
+    divide
+
+-t, --type
+    Baseshift Return value in
+    
+    chr, ord, hex
+
+-w, --words
+    Words to process
+
+-r, --reverse
+    Reverse each 32 chr string
+
+-m, --reversemd5
+    Reverse MD5 string against dictionary
+    
+-l, --removeletters
+    Remove letters from 32 chr hex string
+
+-b, --brutedict
+    Load dictionary file
+
+-1, --base64
+    encode / decode
+
+-c, --cipher
+
+    aes-128-cbc - [default]
+    aes-128-cfb
+    aes-128-cfb1
+    aes-128-cfb8
+    aes-128-ctr
+    aes-128-ecb
+    aes-128-gcm
+    aes-128-ofb
+    aes-128-xts
+
+    camellia-128-cbc
+    camellia-128-cfb
+    camellia-128-cfb1
+    camellia-128-cfb8
+    camellia-128-ecb
+    camellia-128-ofb
+
+-k, --key
+    OpenSSL Key
+    
+-i, --iv
+    OpenSSL IV
+
+-p, --ciphermethod
+    OpenSSL
+    encrypt / dectypt
+ 
 
 Regards,
 
