@@ -165,6 +165,16 @@ camellia-128-ofb
 
 =end
 
+=begin
+
+c = MyCipher.new
+keyiv = c.generate_iv("2srvml")
+c.set_iv(keyiv[0], keyiv[1])
+msg = c.encrypt("this is just a test")
+c.decrypt(msg)
+
+=end
+
   def initialize(cipher="aes-128-cbc")
     @cipher = OpenSSL::Cipher::Cipher.new("#{cipher}")
   end
@@ -178,20 +188,20 @@ camellia-128-ofb
   
   # Specify your Key / IV so you can Encrypt / Decrypt
   def set_iv(key, iv)
-    @cipher.key = Digest::SHA1.hexdigest("#{key}")
+    @cipher.key = key
     @cipher.iv = iv
   end
   
-  def encypt(msg)
+  def encrypt(msg)
     @cipher.encrypt
-    encrypted = @cipher.update("#{msg}")
+    encrypted = @cipher.update(msg)
     encrypted << @cipher.final
   end
   
   def decrypt(msg)
     @cipher.decrypt
-    decrypted = cipher.update("#{msg}")
-    decrypted << cipher.final
+    decrypted = @cipher.update(msg)
+    decrypted << @cipher.final
   end
 
 end
