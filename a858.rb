@@ -32,7 +32,8 @@ opts = GetoptLong.new(
   [ '--cipher', '-c', GetoptLong::REQUIRED_ARGUMENT],
   [ '--key', '-k', GetoptLong::REQUIRED_ARGUMENT],
   [ '--iv', '-i', GetoptLong::REQUIRED_ARGUMENT],
-  [ '--ciphermethod', '-p', GetoptLong::REQUIRED_ARGUMENT]
+  [ '--ciphermethod', '-p', GetoptLong::REQUIRED_ARGUMENT],
+  [ '--keycounter', '-2', GetoptLong::REQUIRED_ARGUMENT]
 )
 
 opts.each do |opt, arg|
@@ -78,6 +79,9 @@ opts.each do |opt, arg|
 -1, --base64
     encode / decode
 
+-2, --keycounter
+    enable / disable
+    
 -c, --cipher
 
     aes-128-cbc - [default]
@@ -135,6 +139,8 @@ opts.each do |opt, arg|
       @iv = arg.to_s
     when '--ciphermethod'
       @ciphermethod = arg.to_s
+    when '--keycounter'
+      @keycounter = arg.to_s
   end
 end
 
@@ -191,6 +197,7 @@ msg2 = d.set_data(msg)
     return [key, iv]
   end
   
+  # mode encrypt / decrypt
   def set_mode(methodname)
     method_sym = methodname.to_sym
     @cipher.send(method_sym)
@@ -202,6 +209,7 @@ msg2 = d.set_data(msg)
     @cipher.iv = iv
   end
   
+  # Returns encrypt / decrypted depending on set_mode param
   def set_data(payload)
     data = @cipher.update(payload)
     data << @cipher.final
@@ -211,7 +219,7 @@ end
 
 class A858
 
-  attr_writer :reverse, :reversemd5, :removeletters, :brutedict, :dictionary, :base64, :cipher, :key, :iv, :ciphermethod
+  attr_writer :reverse, :reversemd5, :removeletters, :brutedict, :dictionary, :base64, :cipher, :key, :iv, :ciphermethod, :keycounter
   
   def initialize
     @twochar_col = Array.new
@@ -227,7 +235,7 @@ class A858
     @cipher, @key, @iv = false, false, false
     @ciphermethod = false
     @debug = 0
-    @keycounter = false # If using Base64 or OpenSSL options set it to false.
+    @keycounter = true # If using Base64 or OpenSSL options set it to false.
   end
   
   def md5sum(dictline)
@@ -391,6 +399,26 @@ str[9] = "a9a744c14a53f376649025c16b42c675 8ad33cf382fd48b7ef7460ddcdc0aa9b c2ff
 
 str[10] = "1fd13c691af70ce88ea3f1ed9d5bafe6 ab94c02e17240b347e2efa0a824f44e1 f3ba090766422b27648e964cfcf5f57f bcbb0a9a3a9528b8397bf768bcc89041 bb99b9286e02e2e71ca982d4693ce983 f92ceebf20f83568982be292083588e6 3358de7c9fc8b900505ed3dbda348a4e 55b36ac42b023e0c9ff7f567ec173e80 0ba0b97bf30cb977677d351dd651772c d21e341602a6b2a3ba2c85646bbb72be c49517d695c0ea9188397901976d5436 16d4194d35a81e535c8b4af95b9b7a7d 4a0c686f6082f94df5c2c45a17f3430b 16ce98bc87040e6965794e70db14efa3 a0133de7a387ff7cb38678911325a90e fb3c8b34fd04f6aaa6a63f04af8a122c ad4478e8d94c28a827216ae647bd6d04 7b2f521f0292b28c9ab8e8c702b53428 9cd67614559bad612265e1aa7f23eaef 59c6e4c4d1ae0a6a8b9dd6090856af47 a88f3d0576ada75cc736e3ef3f261e1c d64d8086942c8208e045533ffa344a8e 336ed05a5820a16c4a38488254dd3640 84b4f398e79cc9fd30eea512645c2b6b f17f61b688e8f11ef3773559ba84402e 57fc56fcd709fb8e69ceaf36efc8f2d1 1acebc7d70b447f8522d000d364d64ce 9704b0bd56787002766e30df66e7fad6 4dc8522be088ff70d74ad399bae0c04a 3d2c40152e55fad94c557d85d1c6dc43 4d7006bd88022e7b469a44aff85a734a 97c727c959611ed8e241b618cbee4c48 d545ee4bf0ac462840891553a86d40be 36654607d190eca22db1cfa62ed835ee f31a13144a570ad41eacd1c680e0189b ced389c6e9fdae2872d032669b9d117e b0c9ef3b2c18382eacebcdc6e1318caa 1d956e28380fa3ad7f0a954d163945dd 1646b8b6b5e8d9a26759c037c3324862 36c0537d9f366938154e5505561b6a8e 053c3675035674a030cb2f89d19ef588 1ed2fd6b6d0be200ef422bf9d778a69e 0bc8e0b936e4f7f29c1ceecb50b76ea4 32f52dbacf6d79da82dae789d8b7b650 c070ce1ebb461dbac31f5b6b50b7a5b7 ad4ec9b61f9c3a4af305413085de15f1 7e276230db52682db53c4a242281feff d30cdcd83c1d1491757dc274be0f5251 46c4bbca0dbc9710d1baaacd5ba289ad 53ec54487144f5381d3d02674222a078 f871053e01c25b9855761d2ef62fe4df 43365aecade66c0733e74252f46dbba7 caac49074b96d5b875eb0a4d719af9c3 cdd7260033f62f085332764847da248c f5563d73a13817e89ba44787bc6e7d80 ea3311fc1b269d28bcf37b867740330a 3110325e4515121403537db04a90d110 6af28079bfc5378ad14b8d9a3be1557c 4467bcc7f80506b47109f66b06fd6f80 ce3089f0b31aca3048542ed52815863e aee6a323a8b5b928c9148a488c6ec3fe 22fa597c0514744ee78989f233095e1d 1bd2918754ef56afe0cb8ead5e5f0ca6 2e8cd391b09bb748cbb9ab7bf9148227 68d65c8634ca5e2279dc043b0341f115 5813f585b9287db37e14958bfaf22166 920b84bf9ce7dc249baad4d1d20d3eae 2f8afae95073d2c87aabb010e44199b4 8c6469458cd8d3d30f9dbf3d3663897d 5fe3281ded0af45b6635a90c0bbfa848 fc6a914d1a3e0be7e4ef7f23fedd6dc4 5fca4f0b77ff7b9bb58686791c667791 2cc412f14499f9251f2ad2570fd942d0 6023c889b947f0e2ce0530a95a47f3c2 8250c6d73f4be286f48c67880f9862ca 062912d7fe80f72015d2e795a8b79daf b7db3bd4fb9df2b1580bc3d0383d399c 2bc99d4e6849294397a5464b36aa1141 058c0a43b87bd05090dc1f5d8a2b5a38 51884b19d52e97d05d1a362f99ade18d 59419e1b736820404bf4551789806777 e755e6eb4cce20165854323840861487 062754132caaeb71f21d180236204031 20e93dfa94db9cf1e4920ecc877d0028 7d324d6a55cb8362b6d8bae9cb90b6b4 7be4219eb5aed67e3762f0e7b2faaa68 b10ac6a80ba11479fe9e90a4ae81fa16 05568e9d624201f3c8074bbd2580f22d e7a4a7387f99782eece67977634670b9 ab4595534eeda92eca6cf68e1c60c0bd 8b3eca5bf52148109951fde5ceb563b2 390d80ec33ad344204cb1fe5c34658b3 b1170948f70fdefb775991cb8bda6e3a 583a6974a00380cb8b6f9d3ac48071ef 19e20f7ceae8b9bb0c37f7f4804c99f1 b011d5fbf537138b9167d4efbbc8708c 72ff93c8c5144226041252e205c46486 8c4e71bb3e85611ecd49d5e80d6c87bf 2a041967c654728b8c19aedc2c3c31b2 1e58ea08865bf4558cc32cf39d1cea23 956163ede69841b5c524bb71cc8c1be0 b1c2f5f2a9878c07a29d0dfeaab6304d e3c0856f56cd7931a44f5690f6fd2aa7 ddc20958cdd90cf0d4cf98128e394989 2c8311be1f891b2324fb3bf6b72955ed 09f32ad5b4987d93b93871674845b5fc 5b4d806bd90f894273afb922ee25d581 52c7bc4b5725e4e39741284fca80f7a7 44694e6c2f27391b366c10a3eeb8ad4b b3605d8c3f249208e54f7ddee74a8db8 b30630e2be48cf33"
 
+# Non standard
+=begin
+Keycounter Codes info:
+ ["A858_33", 4],
+ ["A858_129", 4],
+ ["A858_192", 5],
+ ["A858_117", 5],
+ ["A858_12", 6]]
+Keycounter Codes - Repeat totals occurances: 
+[["A858_REP_6", 1],
+ ["A858_REP_5", 2],
+ ["A858_REP_4", 3],
+ ["A858_REP_3", 19],
+ ["A858_REP_2", 48],
+ ["A858_REP_1", 83]]
+Keycounter Code info Size:
+156
+str[11] = "80acb5226f4615ea020ee8050c300bd1 fb67ec135bcc09a2be0c166bc8a2e815 10f80d202321dc876aad336e1ec13873 f2da69504132cac173f6a20324bfe66e 1a1cc6fd7cec7aa0ae50d83375966c34 060cf3e83d1c01c9c98febb77c406039 77dd8ee82359ceee81962f48c1b38575 4594ac9969514647c3384841b1c0a5ad d57ee72747db913d4fa4107380529cb1 81f3210981e7c0da8bee55fdfd0f1a77 e4660c89936defeb9cd0c4f48d0ca3c0 b4b09636e1c04c2cbde5828764648b35 51335b69dc3bb018a0c05128647b2e1e 3ba35f85981a4fac28ea82e5751e56f8 302fa3dc0c7d5528f416a870aa2775e9 5348d6027af621b48768cf754e70f57c 47b39e81b2182189"
+=end
+
 sel = rand(str.size)
 chooser = str[sel]
 puts "Data Size: #{str[sel].size}"
@@ -400,20 +428,26 @@ x = A858.new
 
 =begin
 # Untested
-def argdefined?(arg, setvalue=false)
+def argdefined?(x, arg, setvalue=false)
   if instance_variable_defined?("@#{arg}") and setvalue == false
+    arg_to_sym = arg.to_sym
     x.instance_eval do
-      instance_variable_set("@#{arg}"), true)
+      #self.send(:attr_writer, arg)
+      instance_variable_set("@#{arg}", true)
     end
   else
+    arg_to_sym = arg.to_sym
     x.instance_eval do
-      instance_variable_set("@#{arg}"), false)
+      self.send(:attr_writer, arg)
+      instance_variable_set("@#{arg}", false)
     end  
   end
   
   if instance_variable_defined?("@#{arg}") and setvalue == true
+    arg_to_sym = arg.to_sym
     x.instance_eval do
-      instance_variable_set("@#{arg}"), instance_variable_get("@#{arg}")
+      #self.send(:attr_writer, arg)
+      instance_variable_set("@#{arg}", instance_variable_get("@#{arg}"))
     end  
   end
 end
@@ -453,5 +487,8 @@ if defined?(@cipher)
   if defined?(@ciphermethod)
     x.ciphermethod = @ciphermethod
   end
+end
+if defined?(@keycounter)
+  x.keycounter = @keycounter
 end
 x.decode(chooser, @wordsnum, @shift, @func)
