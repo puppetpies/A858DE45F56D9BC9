@@ -235,7 +235,7 @@ class A858
     @cipher, @key, @iv = false, false, false
     @ciphermethod = false
     @debug = 0
-    @keycounter = true # If using Base64 or OpenSSL options set it to false.
+    @keycounter = "disable" # If using Base64 or OpenSSL options set it to false.
   end
   
   def md5sum(dictline)
