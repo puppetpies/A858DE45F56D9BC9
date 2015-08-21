@@ -333,7 +333,7 @@ class A858
           print " #{twochar}"
           @twochar_col << twochar
           @dehex_col << convert_hex("#{twochar}")
-          if @keycounter == true; k.keycount("A858_#{@dehex_col[@dehex_col.size - 1]}"); end # Base64 breaks my counter oh well
+          if @keycounter == "enable"; k.keycount("A858_#{@dehex_col[@dehex_col.size - 1]}"); end # Base64 breaks my counter oh well
           @chr_col << convert_chr(convert_hex("#{twochar}"))
           @baseshift << baseshift(convert_hex("#{twochar}"), shift, func, type)
           twochar = ""
@@ -342,7 +342,7 @@ class A858
       if c == wordsnum
         break;
       end
-      if @keycounter == true; l.keycount("A858_#{n}"); end
+      if @keycounter == "enable"; l.keycount("A858_#{n}"); end
       c += 1
     }
     puts "\n\nMDTuples: #{mdtuples.size}"
