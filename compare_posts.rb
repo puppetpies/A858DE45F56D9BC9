@@ -22,7 +22,19 @@
  ["A858_MATCHES_d1", 482],
  ["A858_MATCHES_5b", 485],
  ["A858_MATCHES_1a", 612],
- ["A858_MATCHES_91", 954]] # Significantly more.
+ ["A858_MATCHES_91", 954]] # Significantly more
+ 
+irb(main):002:0> "91".chr
+=> "9"
+irb(main):003:0> "d1".chr
+=> "d"
+irb(main):004:0> "1a".chr
+=> "1"
+irb(main):005:0> "2c".chr
+=> "2"
+irb(main):001:0> "c4".chr
+=> "c"
+
 =end
 
 require 'keycounter'
