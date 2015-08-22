@@ -101,6 +101,6 @@ k = Keycounter.new
 
 }
 
-puts "Our Survery Says: "
+puts "And our survey says: "
 repeat = k.keycount_compile
 pp repeat.sort_by { |h| h[1] }
