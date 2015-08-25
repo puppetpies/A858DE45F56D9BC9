@@ -12,11 +12,9 @@
 require 'keycounter'
 require 'pp'
 
-def convert_hexx(str)
+def convert_hex(str)
   str.hex.to_s
 end
-
-alias :convert_hex :convert_hexx
   
 def convert_ord(str)
   str.ord.to_s
